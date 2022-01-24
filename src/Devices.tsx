@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 
 import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
@@ -8,10 +8,14 @@ import CardActionArea from '@mui/material/CardActionArea'
 import CardActions from '@mui/material/CardActions'
 import CardMedia from '@mui/material/CardMedia'
 import ControlCameraIcon from '@mui/icons-material/ControlCamera'
+import InfoIcon from '@mui/icons-material/Info'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { gql, useQuery } from '@apollo/client'
 import CircularProgress from '@mui/material/CircularProgress'
+
+import OnlineIndicator from './OnlineIndicator'
+import DetailsDialog from "./DetailsDialog";
 
 interface Device {
     id: string
@@ -33,20 +37,31 @@ const DevicesGrid = styled(Grid)({
 })
 
 const DeviceCard = styled(Card)({
-    maxWidth: 360,
+    maxWidth: 310,
 })
 
 const DeviceCardContent = styled(CardContent)({
     paddingBottom: 0,
 })
 
-const DevicesProgress = styled(CircularProgress)({
-    marginTop: '3%',
-    marginLeft: '50%',
+const DeviceCardActions = styled(CardActions)({
+    display: 'flex',
 })
 
-const DeviceControls = styled(Button)({
-    marginLeft: 'auto',
+const DevicesProgress = styled(CircularProgress)({
+    marginTop: '3%',
+})
+
+const DeviceControlAction = styled(Button)({
+    margin: 'auto',
+    marginRight: 0,
+    width: 110
+})
+
+const DeviceDetailsAction = styled(Button)({
+    margin: 'auto',
+    marginLeft: 0,
+    width: 110
 })
 
 const DEVICES_QUERY = gql`
@@ -65,7 +80,7 @@ const Windows7Icon = (
     <CardMedia
         component="img"
         height="250"
-        width="250"
+        width="310"
         image="/image/win7.png"
         alt="Windows 7"
     />
@@ -75,58 +90,121 @@ const Windows8Icon = (
     <CardMedia
         component="img"
         height="250"
-        width="250"
+        width="310"
         image="/image/win8.png"
         alt="Windows 8"
     />
 )
 
+const Windows81Icon = (
+    <CardMedia
+        component="img"
+        height="250"
+        width="310"
+        image="/image/win8_1.png"
+        alt="Windows 8.1"
+    />
+)
+
+const Windows10Icon = (
+    <CardMedia
+        component="img"
+        height="250"
+        width="310"
+        image="/image/win10.png"
+        alt="Windows 10"
+    />
+)
+
+interface OsLogoProps {
+    osString: string
+}
+
+function OsLogo(props: OsLogoProps) {
+    const { osString } = props
+
+    if (osString.toLowerCase().includes("windows 7")) {
+        return Windows7Icon
+    } else if (osString.toLowerCase().includes("windows 8.1")) {
+        return Windows81Icon
+    } else if (osString.toLowerCase().includes("windows 8")) {
+        return Windows8Icon
+    } else if (osString.toLowerCase().includes("windows 10")) {
+        return Windows10Icon
+    }
+
+    return null
+}
+
 export default function Devices() {
     const { loading, error, data, refetch } = useQuery<DevicesQuery>(DEVICES_QUERY)
+    const [openDetails, setOpenDetails] = useState<boolean>(false)
+    const [detailsId, setDetailsId] = useState<string>("")
+
+    const handleClickOpen = () => {
+        setOpenDetails(true)
+    }
+    const handleClose = () => {
+        setOpenDetails(false)
+    }
+
 
     if (error) {
         alert("Fetch devices error")
     }
 
     return (
-        <DevicesGrid container spacing={3}>
-            { loading ? (
-                <DevicesProgress />
-            ) : data && data.devices.map(device => (
-                <Grid key={device.id} item>
-                    <DeviceCard>
-                        <CardActionArea>
-                            {device.os.toLowerCase().includes("windows 7") ? Windows7Icon : null}
-                            {device.os.toLowerCase().includes("windows 8") ? Windows8Icon : null}
-                        </CardActionArea>
-                        <DeviceCardContent>
-                            <Typography variant="body1" color="textSecondary" align="left">
-                                {'OS: ' + device.os}
-                                <br />
-                                {'is VM: ' + device.isVM}
-                                <br/>
-                                {'volumes: ' + device.volumes}
-                                <br/>
-                                {'is online: ' + device.isOnline}
-                            </Typography>
-                        </DeviceCardContent>
-                        <CardActions>
-                            <DeviceControls
-                                variant='contained'
-                                color='primary'
-                                size='small'
-                                startIcon={<ControlCameraIcon />}
-                                onClick={() => {
-                                    alert('test')
-                                    refetch()
-                                }}
-                            >
-                                {'control'}
-                            </DeviceControls>
-                        </CardActions>
-                    </DeviceCard>
-                </Grid>
-            ))}
-        </DevicesGrid>
+        <React.Fragment>
+            <DevicesGrid container justifyContent="center" alignItems="center" spacing={3}>
+                { loading ? (
+                    <DevicesProgress />
+                ) : data && data.devices.map(device => (
+                    <Grid key={device.id} item>
+                        <DeviceCard>
+                            <CardActionArea>
+                                <OsLogo osString={device.os} />
+                            </CardActionArea>
+                            <DeviceCardContent>
+                                <Typography variant="body1" color="textSecondary" align="left">
+                                    {'OS: ' + device.os}
+                                    <br />
+                                    {'VM: ' + (device.isVM ? 'Yes' : 'No')}
+                                    <br/>
+                                    {'Volumes: ' + device.volumes}
+                                </Typography>
+                                <OnlineIndicator isOnline={device.isOnline} />
+                            </DeviceCardContent>
+                            <DeviceCardActions>
+                                <DeviceDetailsAction
+                                    variant='contained'
+                                    color='primary'
+                                    size='small'
+                                    startIcon={<InfoIcon />}
+                                    onClick={() => {
+                                        setDetailsId(device.id)
+                                        handleClickOpen()
+                                    }}
+                                >
+                                    {'details'}
+                                </DeviceDetailsAction>
+                                <DeviceControlAction
+                                    variant='contained'
+                                    color='primary'
+                                    size='small'
+                                    startIcon={<ControlCameraIcon />}
+                                    onClick={() => {
+                                        alert('test')
+                                        refetch()
+                                    }}
+                                >
+                                    {'control'}
+                                </DeviceControlAction>
+                            </DeviceCardActions>
+                        </DeviceCard>
+                    </Grid>
+                ))}
+            </DevicesGrid>
+            <DetailsDialog isOpen={openDetails} handleClose={handleClose} id={detailsId} />
+        </React.Fragment>
     )
 }

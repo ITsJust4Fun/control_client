@@ -138,7 +138,9 @@ export default function MainWindow() {
     const [openedMenu, setOpenedMenu] = useState(windowType.Dashboard)
 
     const menuListItemStyle = {
-        borderRadius: '0px 10px 57px 0px'
+        borderRadius: '10px 10px 10px 10px',
+        width: '94%',
+        marginLeft: '3%'
     }
 
     let headerTitle = ''

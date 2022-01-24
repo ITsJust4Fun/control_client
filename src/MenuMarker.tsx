@@ -14,8 +14,8 @@ export default function MenuMarker(props: Props) {
                 position: 'absolute',
                 width: '100%',
                 height: '100%',
-                background: 'linear-gradient(70deg, rgba(62,66,255,1) 0%, rgba(62,66,255,0.65) 24%, rgba(62,66,255,0.15) 100%)',
-                borderRadius: '0 10px 57px 0',
+                background: 'rgba(0, 0, 255, 0.2)',
+                borderRadius: '10px 10px 10px 10px',
                 zIndex: -1,
                 left: 0
             }}>
