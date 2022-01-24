@@ -3,8 +3,8 @@ import React from 'react'
 
 import Typography from '@mui/material/Typography'
 import {gql, useQuery} from "@apollo/client"
-import {styled} from "@mui/material/styles";
-import CircularProgress from "@mui/material/CircularProgress";
+import {styled} from "@mui/material/styles"
+import CircularProgress from "@mui/material/CircularProgress"
 
 const Progress = styled(CircularProgress)({
     marginTop: '3%',

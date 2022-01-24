@@ -15,7 +15,8 @@ import { gql, useQuery } from '@apollo/client'
 import CircularProgress from '@mui/material/CircularProgress'
 
 import OnlineIndicator from './OnlineIndicator'
-import DetailsDialog from "./DetailsDialog";
+import DetailsDialog from "./DetailsDialog"
+import ControlDialog from "./ControlDialog"
 
 interface Device {
     id: string
@@ -137,15 +138,23 @@ function OsLogo(props: OsLogoProps) {
 }
 
 export default function Devices() {
-    const { loading, error, data, refetch } = useQuery<DevicesQuery>(DEVICES_QUERY)
+    const { loading, error, data } = useQuery<DevicesQuery>(DEVICES_QUERY)
     const [openDetails, setOpenDetails] = useState<boolean>(false)
+    const [openControl, setOpenControl] = useState<boolean>(false)
     const [detailsId, setDetailsId] = useState<string>("")
 
-    const handleClickOpen = () => {
+    const handleDetailsOpen = () => {
         setOpenDetails(true)
     }
-    const handleClose = () => {
+    const handleDetailsClose = () => {
         setOpenDetails(false)
+    }
+
+    const handleControlOpen = () => {
+        setOpenControl(true)
+    }
+    const handleControlClose = () => {
+        setOpenControl(false)
     }
 
 
@@ -182,7 +191,7 @@ export default function Devices() {
                                     startIcon={<InfoIcon />}
                                     onClick={() => {
                                         setDetailsId(device.id)
-                                        handleClickOpen()
+                                        handleDetailsOpen()
                                     }}
                                 >
                                     {'details'}
@@ -193,8 +202,8 @@ export default function Devices() {
                                     size='small'
                                     startIcon={<ControlCameraIcon />}
                                     onClick={() => {
-                                        alert('test')
-                                        refetch()
+                                        setDetailsId(device.id)
+                                        handleControlOpen()
                                     }}
                                 >
                                     {'control'}
@@ -204,7 +213,8 @@ export default function Devices() {
                     </Grid>
                 ))}
             </DevicesGrid>
-            <DetailsDialog isOpen={openDetails} handleClose={handleClose} id={detailsId} />
+            <DetailsDialog isOpen={openDetails} handleClose={handleDetailsClose} id={detailsId} />
+            <ControlDialog isOpen={openControl} handleClose={handleControlClose} id={detailsId} />
         </React.Fragment>
     )
 }
